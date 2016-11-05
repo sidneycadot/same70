@@ -1,0 +1,12 @@
+diff -Naur xdk-asf-3.32.0.orig/sam/utils/syscalls/gcc/syscalls.c xdk-asf-3.32.0/sam/utils/syscalls/gcc/syscalls.c
+--- xdk-asf-3.32.0.orig/sam/utils/syscalls/gcc/syscalls.c	2016-07-21 16:56:00.000000000 +0200
++++ xdk-asf-3.32.0/sam/utils/syscalls/gcc/syscalls.c	2016-09-18 11:20:23.311043571 +0200
+@@ -121,7 +121,7 @@
+ 
+ extern void _exit(int status)
+ {
+-	asm("BKPT #0");
++	__asm__("BKPT #0");
+ }
+ 
+ extern void _kill(int pid, int sig)
