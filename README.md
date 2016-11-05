@@ -5,8 +5,7 @@ This project aims for in-depth exploration of ARM Cortex-M microcontrollers.
 We will use an Atmel SAME70 (Cortex-M7) microcontroller development board for this:
 the SAME70 XPlained board as manufactured by Atmel.
 
-
-## OpenOCD
+## 1. OpenOCD
 
 OpenOCD is used to access the Cortex-M processor on the development board using a standardized
 CMSIS-DAP access port.
@@ -14,7 +13,7 @@ CMSIS-DAP access port.
 An embedded debugger chip is present on the XPlained Pro development board that takes care of
 the bi-directional communication between the Debug USB port and the SAME70 microcontroller.
 
-### Building OpenOCD
+### 1.1. Building OpenOCD
 
 Modern versions of OpenOCD support the SAME70 microcontroller and the SAME70 Xplained Board
 out of the box. Assuming such a version is not available in your particular OS, it is quite
@@ -46,7 +45,7 @@ make
 cd ..
 ```
 
-### Using OpenOCD
+### 1.2. Using OpenOCD
 
 With the version of OpenOCD just made, you should now be able to contact the SAME70 board.
 You may have to execute this as root:
