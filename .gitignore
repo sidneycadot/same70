@@ -1,5 +1,8 @@
 
+xdk-asf-*
+
 asf-standalone-archive-*.zip
+openocd-code
 
 references/*.pdf
 references/*.zip
