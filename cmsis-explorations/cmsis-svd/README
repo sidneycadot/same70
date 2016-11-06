@@ -1,0 +1,8 @@
+
+Atmel distributes "atpack" files for each of its microcontrollers.
+
+These contain, among other things, the SVD files that describe the memory-mapped peripherals of the microcontroller.
+
+For the SAME70 microcontrollers, the ATPACK file can be obtained by executing:
+
+    wget http://packs.download.atmel.com/Atmel.SAME70_DFP.2.0.78.atpack
