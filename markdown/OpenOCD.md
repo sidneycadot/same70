@@ -1,4 +1,4 @@
-# 1. OpenOCD
+# 1. OpenOCD: 
 
 OpenOCD is the *Open On-Chip Debugger*, a command-line tool to interact with microcontrollers
 from a desktop machine.
@@ -43,6 +43,12 @@ OpenOCD is available as a Debian package. However, support for the SAME70 microc
 the SAME70 XPlained development board are not yet available in the packaged version. Therefore,
 we will build our own OpenOCD.
 
+OpenOCD is hosted as a Git repository on *SourceForge*. You can clone it as follows:
+
+```
+git clone git://git.code.sf.net/p/openocd/code openocd-code
+```
+
 The build procedure and prerequisites for OpenOCD are documented in the README file of the
 OpenOCD repository.
 
@@ -50,15 +56,8 @@ In particular, for CMSIS-DAP support, you will need to make sure that the `libus
 `libhidapi` libraries are installed; on Debian-based systems, install the `libusb-dev`
 and `libhidapi-dev` packages to make sure they are available.
 
-Next, we need to bring in the OpenOCD repository.  OpenOCD is hosted as a Git repository on
-*SourceForge*. You can clone it as follows:
-
-```
-git clone git://git.code.sf.net/p/openocd/code openocd-code
-```
-
 Assuming all prerequisites are met, the steps shown below will build the sofware and install
-the OpenOCD executable, man/info packes, and support files in the `/usr/local/` directory.
+the OpenOCD executable, man/info pages, and support files in the `/usr/local/` directory.
 Use the `--prefix` option to the *configure* step to override the installation location, if desired.
 
 Note: it is recommended to inspect the last 20 or so output lines of the *configure* step,
@@ -84,7 +83,7 @@ are plugged in.
 It is recommended that this configuration file be used; it ensures that OpenOCD can access
 attached hardware as a regular user, provided they are member of the `plugdev` group.
 
-This can be accomplished by executing:
+Assuming OpenOCD is installed in `/usr/local`, this can be accomplished by executing:
 
 ```
 sudo ln -s /usr/local/share/openocd/contrib/99-openocd.rules /etc/udev/rules.d/
@@ -92,8 +91,10 @@ sudo ln -s /usr/local/share/openocd/contrib/99-openocd.rules /etc/udev/rules.d/
 
 ## 1.5. Testing OpenOCD with the SAME70 XPlained board
 
-With the version of OpenOCD just made, you should now be able to contact a SAME70 board that
-is connected to a USB port. Try the following command:
+With the version of OpenOCD just made, you should now be able to contact a SAME70 XPlained
+development board that is connected to a USB port of your desktop machine.
+
+Try the following command:
 
 ```
 openocd -f board/atmel_same70_xplained.cfg
@@ -112,7 +113,7 @@ on the development board on and off.
 
 Pin 8 of the PIOC peripheral of the SAME70 controls the green LED on the development board. If
 we put a '0' there, the led will go on; if we put a '1' there, the led will go off. (The LED pin
-is *active-low*).
+is *active-low*.)
 
 Assuming OpenOCD is still running after the previously given command, open a second terminal. Start
 a telnet sessing to local port 4444 (`telnet localhost 4444`); you should see an OpenOCD prompt.
@@ -120,21 +121,21 @@ a telnet sessing to local port 4444 (`telnet localhost 4444`); you should see an
 To control the LED, enter the following four OpenOCD commands:
 
 ```
-mww 0x400e1200 0x100     # put PIOC pin 8 under control of the PIOC peripheral.
-mww 0x400e1210 0x100     # configure PIOC pin 8 as output pin.
-mww 0x400e1234 0x100     # set PIOC pin 8 as 0 (turns LED on).
-mww 0x400e1230 0x100     # set PIOC pin 8 to 1 (turns LED off).
+mww 0x400e1200 0x100  # put PIOC pin 8 under control of the PIOC peripheral.
+mww 0x400e1210 0x100  # configure PIOC pin 8 as an output pin.
+mww 0x400e1234 0x100  # set PIOC pin 8 as 0 (turns LED on).
+mww 0x400e1230 0x100  # set PIOC pin 8 to 1 (turns LED off).
 ```
 
 You can repeat either of the last two lines to play with the LED.
 
 ## 1.6 Some useful OpenOCD commands
 
-(To Be Written)
+(To be written)
 
 ## 1.7 Using GDB
 
-(To Be Written)
+(To be written)
 
 ## 1.8 References
 
