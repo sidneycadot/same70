@@ -1,0 +1,6 @@
+
+This is an attempt to make a minimalistic SAME70 executable: what code is really needed?
+
+It is based on the "getting started" example, and depends only on a small subset of the Atmel Software Framework.
+
+Follow-up work will be to minimize the dependencies even further.
