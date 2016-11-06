@@ -21,8 +21,8 @@ unzip -q $ZIPFILE
 echo "File count before pruning ..."
 find $XDK_ASF_DIR -type f | wc -l
 
-echo "Patching XDK_ASF_DIR ..."
-patch -p0 < $PATCHFILE
+#echo "Patching XDK_ASF_DIR ..."
+#patch -p0 < $PATCHFILE
 
 echo "Removing superfluous toplevel directories ..."
 rm -rf $XDK_ASF_DIR/avr32

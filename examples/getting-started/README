@@ -1,0 +1,6 @@
+
+This "getting started" example is adapted from the Atmel Software Framework (ASF) example 'sam/applications/getting-started'.
+
+To obtain the current form we traced the compile and link steps in the original example's Makefile and reproduced them in a simplified Makefile.
+
+This example is about as simple as it gets while still depending on the ASF.
