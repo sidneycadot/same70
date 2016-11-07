@@ -15,5 +15,5 @@ Table of Contents
 5. Startup sequence of the SAME70 microcontroller
 6. Low-power software design
 7. Using an RTOS
-8. The CMSIS standards
+8. [The CMSIS standards](markdown/CMSIS.md)
 9. The Atmel Software Framework (ASF)
