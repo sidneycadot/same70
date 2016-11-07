@@ -1,8 +1,10 @@
 
-xdk-asf-*
+xdk-asf-3.32.0
 
 asf-standalone-archive-*.zip
 openocd-code
+
+examples/*/build/
 
 references/*.pdf
 references/*.zip
