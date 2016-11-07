@@ -1,4 +1,4 @@
-# 1. OpenOCD: 
+# 1. OpenOCD
 
 OpenOCD is the *Open On-Chip Debugger*, a command-line tool to interact with microcontrollers
 from a desktop machine.
@@ -9,7 +9,7 @@ OpenOCD provides direct (read/write) access to a microcontroller's memory, its r
 its debugging facilities. On top of this, facilities such as flash programming, a bridge to GDB,
 and facilities to reset the microcontroller are implemented.
 
-OpenOCD provides a TCL interpreter to control its functionality. The OpenOCD distribution provides
+OpenOCD has a built-in TCL interpreter to control its functionality. The OpenOCD distribution provides
 TCL scripts that implement support for a variety of interfaces, development boards, and
 microcontroller chips.
 
@@ -18,24 +18,23 @@ by writing custom TCL scripts.
 
 ## 1.2. OpenOCD and the SAME70 XPlained board
 
-The CMSIS-DAP interface as defined by ARM is the preferred way of communicating with Cortex-M
-microcontrollers; it is fully supported by OpenOCD. We will use this interface to talk to the
+The CMSIS-DAP interface as defined by ARM is the preferred way of communicating with a Cortex-M
+microcontroller, and it is fully supported by OpenOCD. We will use this interface to talk to the
 SAME70 microcontroller.
 
-Recent versions of OpenOCD support the SAME70 microcontroller, as well as the SAME70 XPlained
-development board. This means that TCL scripts are provided that enable OpenOCD to handle the
-specifics of the SAME70 chip, and the SAME70 XPlained development board.
+Recent versions of OpenOCD also provide TCL configuration scripts for the SAME70 chip and the
+SAME70 XPlained development board.
 
 The SAME70 XPlained development board features a so-called *embedded debugger*, which is a simple
 microcontroller that acts as a bridge between the CMSIS-DAP port of the SAME70 and its own USB
-port. The embedded debugger's USB port is marked "Debug USB" on the development board; do not
-confuse it with the "Target USB" port which connects directly to the main SAME70 microcontroller.
+port. The embedded debugger's USB port is marked *Debug USB* on the development board; do not
+confuse it with the *Target USB* port that connects directly to the main SAME70 microcontroller.
 
-The job of the embedded debugger is to implement the bi-directional communication between the
+The job of the embedded debugger is to implement bidirectional communication between the
 Debug USB port (hooked up to a desktop machine) and the SAME70 microcontroller.
 
 Since the embedded debugger is a simple microcontroller itself, it has its own firmware. Its
-firmware can be upgraded to the latest version using the latest version of Atmel Studio.
+firmware can be updated using the latest version of Atmel Studio.
 
 ## 1.3. Building OpenOCD
 
@@ -56,14 +55,9 @@ In particular, for CMSIS-DAP support, you will need to make sure that the `libus
 `libhidapi` libraries are installed; on Debian-based systems, install the `libusb-dev`
 and `libhidapi-dev` packages to make sure they are available.
 
-Assuming all prerequisites are met, the steps shown below will build the sofware and install
+Assuming all prerequisites are met, the steps shown below will build the software and install
 the OpenOCD executable, man/info pages, and support files in the `/usr/local/` directory.
 Use the `--prefix` option to the *configure* step to override the installation location, if desired.
-
-Note: it is recommended to inspect the last 20 or so output lines of the *configure* step,
-to ensure that CMSIS-DAP support will be built. If it says *no* there, something is missing
-from the prerequisites. Fix that first and re-run the configure step, otherwise you will end
-up with a version of OpenOCD that cannot be used to communicate with the SAME70 XPlained board.
 
 ```
 cd openocd-code
@@ -71,8 +65,12 @@ cd openocd-code
 ./configure
 make
 make install
-cd ..
 ```
+
+Note: it is recommended to inspect the last 20 or so output lines of the *configure* step,
+to ensure that CMSIS-DAP support will be built. If it says *no* there, something is missing
+from the prerequisites. Fix that first and re-run the configure step, otherwise you will end
+up with a version of OpenOCD that cannot be used to communicate with the SAME70 XPlained board.
 
 ## 1.4. Installing UDEV rules
 
@@ -116,9 +114,10 @@ we put a '0' there, the led will go on; if we put a '1' there, the led will go o
 is *active-low*.)
 
 Assuming OpenOCD is still running after the previously given command, open a second terminal. Start
-a telnet sessing to local port 4444 (`telnet localhost 4444`); you should see an OpenOCD prompt.
+a telnet session to local port 4444 (`telnet localhost 4444`); you should see an OpenOCD prompt.
 
-To control the LED, enter the following four OpenOCD commands:
+To control the LED, enter the following four OpenOCD commands. These commands write 32-bit values
+in registers of the memory-mapped PIOC peripheral:
 
 ```
 mww 0x400e1200 0x100  # put PIOC pin 8 under control of the PIOC peripheral.
