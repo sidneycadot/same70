@@ -4,7 +4,7 @@ set -e
 
 ZIPFILE=asf-standalone-archive-3.32.0.48.zip
 ZIPFILE_URL=http://www.atmel.com/images/$ZIPFILE
-XDK_ASF_DIR=xdk-asf-3.32.0
+ASF_DIR=xdk-asf-3.32.0
 PATCHFILE=xdk-asf-3.32.0_fixes.patch
 
 if [ ! -f $ZIPFILE ] ; then
@@ -12,23 +12,26 @@ if [ ! -f $ZIPFILE ] ; then
     wget $ZIPFILE_URL
 fi
 
-echo "Removing stale XDK_ASF_DIR ..."
-rm -rf $XDK_ASF_DIR
+echo "Removing stale ASF_DIR ..."
+rm -rf $ASF_DIR
 
-echo "Unzipping fresh XDK_ASF_DIR ..."
+echo "Unzipping fresh ASF_DIR ..."
 unzip -q $ZIPFILE
 
 echo "File count before pruning ..."
-find $XDK_ASF_DIR -type f | wc -l
+find $ASF_DIR -type f | wc -l
 
-#echo "Patching XDK_ASF_DIR ..."
-#patch -p0 < $PATCHFILE
+# The patch replaces an 'asm' statement by an '__asm__' statement, which allows the code
+# to be compiled using standard C without GNU extensions.
+
+echo "Patching ASF_DIR ..."
+patch -p0 < $PATCHFILE
 
 echo "Removing superfluous toplevel directories ..."
-rm -rf $XDK_ASF_DIR/avr32
-rm -rf $XDK_ASF_DIR/mega
-rm -rf $XDK_ASF_DIR/xmega
-rm -rf $XDK_ASF_DIR/sam0
+rm -rf $ASF_DIR/avr32
+rm -rf $ASF_DIR/mega
+rm -rf $ASF_DIR/xmega
+rm -rf $ASF_DIR/sam0
 
 echo "Removing unused subdirectories ..."
 REMOVE_DIRS="
@@ -46,8 +49,8 @@ REMOVE_DIRS="
     "
 for rd in $REMOVE_DIRS
 do
-    rm -rf `find $XDK_ASF_DIR -type d -name $rd`
+    rm -rf `find $ASF_DIR -type d -name $rd`
 done
 
 echo "File count after pruning ..."
-find $XDK_ASF_DIR -type f | wc -l
+find $ASF_DIR -type f | wc -l
