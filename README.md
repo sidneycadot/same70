@@ -12,8 +12,10 @@ Table of Contents
 2. Building a GCC toolchain with Newlib support
 3. Newlib in-depth
 4. C and C++ support
-5. Startup sequence of the SAME70 microcontroller
+5. [Startup sequence of the SAME70 microcontroller](markdown/StartupSequence.md)
 6. Low-power software design
 7. Using an RTOS
 8. [The CMSIS standards](markdown/CMSIS.md)
 9. The Atmel Software Framework (ASF)
+10. Linker script
+11. The SAM-BA protocol.
