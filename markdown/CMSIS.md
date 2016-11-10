@@ -13,6 +13,15 @@ CMSIS consists of 6 different sub-standards:
 * CMSIS-RTOS
 * CMSIS-Driver
 
-## 8.9 References
+The following sections describes each of these standards in a bit more detail.
+
+## 8.1 CMSIS-CORE
+## 8.2 CMSIS-SVD
+## 8.3 CMSIS-DAP
+## 8.4 CMSIS-DSP
+## 8.5 CMSIS-RTOS
+## 8.6 CMSIS-Driver
+
+## 8.7 References
 
 http://www.arm.com/products/processors/cortex-m/cortex-microcontroller-software-interface-standard.php

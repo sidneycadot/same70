@@ -1,22 +1,20 @@
 # 5. Startup sequence of the SAME70 microcontroller
 
-In this section, we describe in detail the startup sequence of a SAME70 microcontroller.
+In this section, we describe the startup sequence of a SAME70 microcontroller in some detail.
 
 ## 5.1 The reset handler
 
-The boot process of the SAME70 microcontroller starts at the *reset handler*, which is the second entry of the exception vector table. (The first entry is the initial stack pointer.)
+The boot process of the SAME70 microcontroller starts at the *reset handler*. The SAME70 finds its address by laoding the second entry of the exception vector table. (The first entry is the initial stack pointer.)
 
-At cold start, the exception vector table is assumed to be at memory location 0 (zero). However, a register is available to move the vector table to a different memory location.
+The processor's `SCB->VTOR` register determines the location of the exception vector table. At startup, it is 0 (zero).
 
-In the SAME70, address 0x00000000 to 0x???????? can either be mapped to the embedded Flash memory or to an embedded ROM containing the SAM-BA monitor program.
-If the embedded ROM is selected, the microcontroller will boot into the SAM-BA monitor program, that allows low-level interaction with the microcontroller using a simple serial
-protocol on UART0. This is the factory default.
+In the SAME70, the low addresses starting at 0x00000000 can either be mapped to the embedded Flash memory or to an embedded ROM containing the SAM-BA monitor program.
 
-To boot from the embedded Flash memory, it is necessary to write a persistent the appropriate GPNVM (*general-purpose non-volatile memory*) bit. Consult the datasheet for details.
+If the embedded ROM is selected, the microcontroller will boot into the SAM-BA monitor program, that allows low-level interaction with the microcontroller using a simple serial protocol on UART0. This is the factory default.
 
-When compiling a SAME70 program, an ELF file is generated that contains a memory image. This memory image can be written to the SAME70's embedded Flash memory using a programming
-tool such as OpenOCD. Apart from the user code (which starts from `main()`), the image will usually contain some code provided by the ASF that includes a default implementation of
-a reset handler.
+To boot from the embedded Flash memory, it is necessary to write the appropriate GPNVM (*general-purpose non-volatile memory*) bit. Consult the datasheet for details.
+
+When compiling a SAME70 program, an ELF file is generated that contains a memory image. This memory image can be written to the SAME70's embedded Flash memory using a programming tool such as OpenOCD. Apart from the user code (which starts from `main()`), the image should contain some code that includes a reset handler implementation. The default implementation is provided by the ASF.
 
 The following two files are important to understand the cold-start process of the SAME70:
 
@@ -25,17 +23,17 @@ $(ASFDIR)/sam/utils/cmsis/same70/include/same70q21.h
 $(ASFDIR)/sam/utils/cmsis/same70/source/templates/gcc/startup_same70.c
 ```
 
-The first file contains basic definitions and a memory map for the SAME70 processor and its peripherals. For example, it defines the memory layout of the exception vector table (struct `DeviceVectors`). It contains no code.
+The first file contains basic definitions and a memory map for the SAME70 microcontroller. For example, it defines the memory layout of the exception vector table (struct `DeviceVectors`), and pointer-to-struct-type variables for each of the peripherals. It contains no code.
 
 The second file contains the startup data and code. Specifically, it defines the `exception_table` variable (residing in the `.vector` link section), the `Reset_Handler` function, and the `Dummy_Handler` function.
 
-The `exception_table` contains the initial stack pointer value; 15 system-level exception handlers; and 64 peripheral interrupt handlers. In the `exception_table`, most entries are initialized to either 0 (zero) in case they are *reserved*, or implemented as weak symbols that alias to the `Dummy_Handler`. The latter is simply a routine that enters an infinite loop; in case the SAME70 would ever enter such a routine, the processor will appear to hang. **It is therefore important that all exception and interrupt handler routines that can be expected to happen during operation are actually implemented.**
+The `exception_table` contains the initial stack pointer value; 15 system-level exception handlers; and 64 peripheral interrupt handlers. In the `exception_table`, most entries are initialized to either 0 (zero) in case they are *reserved*, or implemented as weak symbols that alias to the `Dummy_Handler`. The latter is simply a routine that enters an infinite loop; in case the SAME70 enters such a routine, the processor will effectively hang. **It is therefore important that all exception and interrupt handler routines that can be expected to invoked during operation are actually implemented.**
 
-To implement an exception or interrupt handler, simply implement a function with the appropriate name and signature, such as `void SysTick_Handler(void)` or `void DACC_Handler(void)`. An actual implementation will *override* the default `Dummy_Handler` alias, because it is defined as a so-called *weak symbol* for the linker.
+To implement an exception or interrupt handler, simply implement a function with the appropriate name and signature, such as `void SysTick_Handler(void)` or `void DACC_Handler(void)`. An actual implementation will override the default `Dummy_Handler` alias, because it is defined as a *weak symbol* for the linker.
 
-The only exception handler that has a functional default implementation is the `Reset_Handler`. Fortunately, it is short, at about 35 lines of easy-to-follow C code. The code does some initialization (described below), runs `main()`, and then enters an infinite loop. To ensure proper functionality, it is therefore important that the `main()` is written in such a way that it never returns; if it returns, the processor will simply appear to hang.
+The only exception handler that has a functional default implementation is the `Reset_Handler`. Fortunately, it is short: about 35 lines of easy-to-follow C code. The code does some initialization (described below), runs `main()`, and then enters an infinite loop. To ensure proper functionality, the `main()` function must be written in such a way that it never returns; if it does, the processor will simply appear to hang.
 
-It is noted that the SAME70 has advanced clock management features that make it possible to switch between an internally generated low-quality clock (default) or higher-quality external crystal clock. At cold start, the SAM4E runs from its internally generated clock, at approximately 4 MHz. The reset handler runs from this 'preliminary' clock source; it is quite customary to switch to the desired runtime clock as the first step of `main()`. See the section about `sysclk_init()` described below.
+It is noted that the SAME70 has advanced clock management features that make it possible to switch between an internally generated low-quality clock (default) or higher-quality external crystal clock. At cold start, the SAM4E runs from its internally generated clock, at approximately 4 MHz. The reset handler runs is therefore executed at approximately 4 MHz. Standard practice is to switch to the desired runtime clock source as the first step of `main()`. See the section about `sysclk_init()` below.
 
 The following steps are performed in the `Reset_Handler()`:
 
@@ -43,17 +41,17 @@ The following steps are performed in the `Reset_Handler()`:
 2. The `.zero` segment is written with zero words.
 3. The processor's vector pointer is re-assigned to point to the start of the `.fixed` segment.
 4. If an FPU is used (preprocessor symbol __FPU_USED is defined), the `fpu_enable()` function is executed.
-5. The `__libc_init_array()` function is executed, which is provided by Newlib.
+5. The `__libc_init_array()` function is executed, which is usually provided by the `newlib` C library.
 6. The `main()` function is called without parameters. The result value, if any, is discarded.
 7. An infinite loop (`while (1);`) is entered.
 
 The `fpu_enable()` function is defined in $(ASFDIR)/sam/utils/fpu/fpu.h.
 
-The `__libc_init_array()` function is defined in `$(NEWLIBDIR)/newlib/libc/misc/init.c`. The intention of this function is to call a number of functions, each with signature void(*)(void), prior to entering `main()`. These are used to implement e.g. constructor calls to global object instances in C++.
+The `__libc_init_array()` function is defined in `$(NEWLIBDIR)/newlib/libc/misc/init.c`. The intention of this function is to call a number of functions, each with signature `void(*)(void)`, prior to entering `main()`. These are used to implement e.g. constructor calls to global object instances in C++.
 
 ## 5.2 The `main()` function
 
-In the examples provided by the ASF, the `main()` function always start by first calling the `sysclk_init()` function, followed by the `board_init()` function. Once both `sysclk_init()` and `board_init()` have completed, the system is properly initialized and the actual user code follows that implements the intended microcontroller functionality.
+In the examples provided by the ASF, the `main()` function always start by first calling the `sysclk_init()` function, followed by the `board_init()` function. Once both `sysclk_init()` and `board_init()` have completed, the system is properly initialized. These two function invocations are then followed by the code that implements the intended microcontroller functionality.
 
 We will now discuss the implementation of these two functions for the SAME70 microcontroller and the SAME70 XPlained development board.
 
@@ -65,32 +63,31 @@ This function is usually called as the very first step in the `main()` function.
 
 The C or C++ file containing `main()` will usually include the file `$(ASFDIR)/common/services/clock/sysclk.h`, which is set up to include a file `conf_clock.h`, followed by the microprocessor-specific version of the header `sysclk.h` header file.
 
-The file `conf_clock.h` is an ASF configuration header file, i.e., a header file that a program that uses the ASF needs to have to communicate configuration information to `deeper' layers of header- and source-files. ASF header- and source files assume that such files are available. The `conf' header files communicate configuration information to the ASF header- and source-files via preprocessor values.
+The file `conf_clock.h` is an ASF configuration header file, i.e., a header file that an application program that uses the ASF needs to provide to communicate configuration information to deeper layers of ASF header- and source-files. Some ASF header- and source files assume that such files are available. These `conf_*.h` header files provide configuration information to the ASF header- and source-files using preprocessor symbols.
 
 In case of `conf_clock.h`, the configuration information to be provided consists of clock sources and (optionally) settings for the clock multipliers and divisors.
 
 On the SAME70 XPlained board, a 12 MHz external crystal oscillator is present that serves as a source for a PLL. In this configuration, the `sysclk_init()` function performs the following steps:
 
 1. system_init_flash(CHIP_FREQ_CPU_MAX)
-2. pll_enable_source(CONFIG_PLL0_SOURCE);
-3. pll_config_defaults(&pllcfg, 0);
-4. pll_enable(&pllcfg, 0);
-5. pll_wait_for_lock(0);
-6. pmc_mck_set_division(CONFIG_SYSCLK_DIV);
-7. pmc_switch_mck_to_pllack(CONFIG_SYSCLK_PRES);
-8. SystemCoreClockUpdate();
-9. system_init_flash(sysclk_get_cpu_hz());
+2. pll_enable_source(CONFIG_PLL0_SOURCE)
+3. pll_config_defaults(&pllcfg, 0)
+4. pll_enable(&pllcfg, 0)
+5. pll_wait_for_lock(0)
+6. pmc_mck_set_division(CONFIG_SYSCLK_DIV)
+7. pmc_switch_mck_to_pllack(CONFIG_SYSCLK_PRES)
+8. SystemCoreClockUpdate()
+9. system_init_flash(sysclk_get_cpu_hz())
 
 ### 5.2.2 The `board_init()` function
 
 The `board_init()` function is defined in `$(ASFDIR)/sam/boards/same70_xplained/init.c`.
 
-The intention of the ASF `board_init()` function is to initialize the SAME70 and its external peripherals (residing outside of the SAME70, but on the same PCB).
+The intention of the ASF `board_init()` function is to initialize the SAME70 and its external peripherals, i.e., components residing outside of the SAME70, but on the same PCB, such as LEDs, an Ethernet PHY, etcetera.
 
-The following steps are implemented. Note that the behavior of these steps is configurable at compile time; most of these steps can be skipped.
-Unfortunately, there is no externally documented specification, it is necessary to inspect the source code to see which configuration options are present.
+Below is a list of steps performed byu the `board_init()` function. Note that the behavior of these steps is configurable at compile time using the `conf_*.h` mechanism described above; most of these steps can be skipped. Unfortunately, there appears to be no seperate documentation about the supported configuration options, it is necessary to inspect the source code of examples anddriver code provided by the ASF to see which configuration options are available.
 
-1. The SAME70 watchdog timer (WDT) peripheral is disabled. If the watchdog timer is not disabled, the SANE70 will be reset 8 seconds after starting.
+1. The SAME70 watchdog timer (WDT) peripheral is disabled. If the watchdog timer is not disabled, the SAME70 will be reset 8 seconds after starting.
 2. TCM memory will be enabled or disabled. In the former case, data from the `.itcm_lma` segment may be copied to the `.itcm` segment.
 3. I/O ports (PIOx peripherals) are initialized.
 4. The USART1 peripheral pins are configured.

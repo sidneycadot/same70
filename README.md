@@ -18,4 +18,4 @@ Table of Contents
 8. [The CMSIS standards](markdown/CMSIS.md)
 9. The Atmel Software Framework (ASF)
 10. Linker script
-11. The SAM-BA protocol.
+11. The SAM-BA protocol
