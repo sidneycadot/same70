@@ -1,14 +1,12 @@
 # Building a toolchain with GCC and Newlib
 
-**NOTE: This tutorial is work in progress. The commands in this tutorial work, but I don't understand yet why.**
-
 The *toolchain* consists of tools for compiling and linking source code into executable code that can run on the microcontroller. The toolchain itself runs on a desktop (Linux) computer, but creates programs which run on the microcontroller and is therefore said to be a *cross-compilation toolchain*.
 
 The cross-compilation tools are highly similar to the typical development tools on Linux computers, but the names of all tools begin with `arm-none-eabi-` to distinguish them from the normal tools, for example `arm-none-eabi-gcc`.
 
 This tutorial is far from unique. Many authors have documented this process, and this tutorial closely follows the steps outlined in ["Building the GNU ARM Toolchain"](https://blog.tan-ce.com/gcc-bare-metal/) by Tan Chee Eng. However this tutorial uses newer software versions, builds for a different ARM target and performs slightly different steps.
 
-## x.1 Assumptions
+## x.1 Host system
 
 This tutorial assumes a Linux x86_64 host computer running Debian 8 (jessie).
 Other flavours of Linux will probably also work, but have not been tested.
@@ -25,7 +23,7 @@ Also add the `bin` subdirectory of the toolchain to the system path. The later s
 ```
 mkdir /somewhere/arm-toolchain
 TOOLCHAIN=/somewhere/arm-toolchain
-PATH="$PATH:/somewhere/arm-toolchain"
+PATH="/somewhere/arm-toolchain/bin:$PATH"
 ```
 
 ## x.2 Binutils
@@ -62,14 +60,14 @@ tar xzvf newlib-2.4.0.tar.gz
 tar xjvf gcc-6.2.0.tar.bz2
 mkdir b-gcc
 cd b-gcc
-../gcc-6.2.0/configure --prefix=${TOOLCHAIN} --target=arm-none-eabi --with-cpu=cortex-m7 --with-mode=thumb --with-float=softfp --with-fpu=fpv5-sp-d16 --disable-multilib --enable-languages="c,c++" --with-newlib --with-headers=../newlib-2.4.0/newlib/libc/include
+../gcc-6.2.0/configure --prefix=${TOOLCHAIN} --target=arm-none-eabi --with-cpu=cortex-m7 --with-mode=thumb --with-float=softfp --with-fpu=fpv5-d16 --disable-multilib --enable-languages="c,c++" --with-newlib --with-headers=../newlib-2.4.0/newlib/libc/include
 make
 make install
 ```
 
-**TODO: check the impact of various cpu/fpu/abi selections**
+Note: The option ```--with-float=softfp``` configures the compiler to work in ```softfp``` mode by default. It also determines the compiler mode used to build GCC and Newlib. In ```softfp``` mode, the compiler will use hardware floating point instructions but will never pass arguments or return values to subroutines via floating point registers. As a result, ```softfp``` code is binary compatible between FPU and non-FPU targets. Alternatives are ```--with-float=hard``` meaning the compiler will pass parameters via floating point registers, and ```--with-float=soft``` meaning the compiler will not use FPU instructions at all.
 
-**TODO: check whether newlib headers are actually required**
+Note: The option ```--with-fpu=fpv5-d16``` configures the compiler to assume a double-precision FPU by default. It also determines the compiler mode used to build GCC and Newlib. An alternative is ```--with-fpu=fpv5-sp-d16``` for single-precision FPUs.
 
 When this process is complete, the compilers `arm-none-eabi-gcc` and `arm-none-eabi-g++` should be available.
 
@@ -84,8 +82,6 @@ cd b-newlib
 make
 make install
 ```
-
-**TODO: check the impact of --disable-newlib-supplied-syscalls**
 
 When this process is complete, the C library `libc.a` should be available.
 
@@ -104,12 +100,6 @@ cd b-gdb
 make
 make install
 ```
-
-**TODO: confirm that this works; this whole section is bluff; I have never used GDB on ARM**
-
-## x.6 Using the toolchain
-
-**(to be written)**
 
 ## x.7 References
 
