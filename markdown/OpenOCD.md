@@ -43,7 +43,7 @@ cd openocd-code
 ./bootstrap
 ./configure
 make
-make install
+sudo make install
 ```
 
 Note: it is recommended to inspect the last 20 or so output lines of the *configure* step, to ensure that CMSIS-DAP support will be built. If it says *no* there, something is missing from the prerequisites. Fix that first and re-run the configure step, otherwise you will end up with a version of OpenOCD that cannot be used to communicate with the SAME70 XPlained board.
@@ -64,7 +64,9 @@ sudo ln -s /usr/local/share/openocd/contrib/99-openocd.rules /etc/udev/rules.d/
 
 With the version of OpenOCD just made, you should now be able to contact a SAME70 XPlained development board that is connected to a USB port of your desktop machine.
 
-Try the following command:
+Make sure that the USB cable connects to the Debug port of the SAME70 XPlained board. If it is connected to the Target port, the following will not work.
+
+Next, try the following command:
 
 ```
 openocd -f board/atmel_same70_xplained.cfg
@@ -80,7 +82,7 @@ Pin 8 of the PIOC peripheral of the SAME70 controls the green LED on the develop
 
 Assuming OpenOCD is still running after the previously given command, open a second terminal. Start a telnet session to local port 4444 (`telnet localhost 4444`); you should see an OpenOCD prompt.
 
-To control the LED, enter the following four OpenOCD commands. These commands write 32-bit values in registers of the memory-mapped PIOC peripheral:
+To control the LED, enter the following four OpenOCD commands (omit the comment starting at '#'). These commands write 32-bit values in registers of the memory-mapped PIOC peripheral:
 
 ```
 mww 0x400e1200 0x100  # put PIOC pin 8 under control of the PIOC peripheral.
@@ -93,7 +95,20 @@ You can repeat either of the last two lines to play with the LED.
 
 ## 1.6 Some useful OpenOCD commands
 
-(To be written)
+The SAME70 can be programmed to boot either from its built-in ROM (which runs the SAM-BA monitor program on UART0) or from its
+Flash memory. If the device is in ROM boot mode, it will not run code that is uploaded to its Flash memory.
+
+To force the SAME70 to boot from Flash:
+
+```
+mww 0x400e0c04 0x5a00010b     # (set GPNVM bit #1)
+```
+
+To force the SAME70 to boot from ROM (SAM-BA mode):
+
+```
+mww 0x400e0c04 0x5a00010c     # (clear GPNVM bit #1)
+```
 
 ## 1.7 Using GDB
 
