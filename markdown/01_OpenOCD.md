@@ -1,6 +1,8 @@
 # 1. OpenOCD
 
-OpenOCD is the *Open On-Chip Debugger*, a command-line tool to interact with microcontrollers from a desktop machine.
+OpenOCD is the *Open On-Chip Debugger*, an open source  command-line tool to interact with microcontrollers from a desktop machine.
+
+The product is maintained at the [OpenOCD website](http://openocd.org/).
 
 ## 1.1. Introduction
 
@@ -20,7 +22,7 @@ The SAME70 XPlained development board features a so-called *embedded debugger*, 
 
 The job of the embedded debugger is to implement bidirectional communication between the Debug USB port (hooked up to a desktop machine) and the SAME70 microcontroller.
 
-Since the embedded debugger is a simple microcontroller itself, it has its own firmware. Its firmware can be updated using the latest version of Atmel Studio.
+Since the embedded debugger is a simple microcontroller itself, it has its own firmware. Its firmware can only be updated in using the latest version of Atmel Studio, so if you want to do that, you will need to install it. Note that Atmel Studio is Windows-only.
 
 ## 1.3. Building OpenOCD
 
@@ -36,7 +38,7 @@ The build procedure and prerequisites for OpenOCD are documented in the README f
 
 In particular, for CMSIS-DAP support, you will need to make sure that the `libusb` and `libhidapi` libraries are installed; on Debian-based systems, install the `libusb-dev` and `libhidapi-dev` packages to make sure they are available.
 
-Assuming all prerequisites are met, the steps shown below will build the software and install the OpenOCD executable, man/info pages, and support files in the `/usr/local/` directory. Use the `--prefix` option to the *configure* step to override the installation location, if desired.
+Assuming all prerequisites are met, the steps shown below will build the software and install the OpenOCD executable, man/info pages, and support files in the `/usr/local/` directory. Use the `--prefix` option in the *configure* step to override the installation location, if desired.
 
 ```
 cd openocd-code
@@ -46,7 +48,7 @@ make
 sudo make install
 ```
 
-Note: it is recommended to inspect the last 20 or so output lines of the *configure* step, to ensure that CMSIS-DAP support will be built. If it says *no* there, something is missing from the prerequisites. Fix that first and re-run the configure step, otherwise you will end up with a version of OpenOCD that cannot be used to communicate with the SAME70 XPlained board.
+Note: it is recommended to inspect the last 20 or so output lines of the *configure* step, to ensure that CMSIS-DAP support will be included. If it says *no* there, something is missing from the prerequisites. Fix that first and re-run the configure step, otherwise you will end up with a version of OpenOCD that cannot be used to communicate with the SAME70 XPlained board.
 
 ## 1.4. Installing UDEV rules
 
@@ -57,7 +59,7 @@ It is recommended that this configuration file be used; it ensures that OpenOCD 
 Assuming OpenOCD is installed in `/usr/local`, this can be accomplished by executing:
 
 ```
-sudo ln -s /usr/local/share/openocd/contrib/99-openocd.rules /etc/udev/rules.d/
+sudo ln -s /usr/local/share/openocd/contrib/??-openocd.rules /etc/udev/rules.d/
 ```
 
 ## 1.5. Testing OpenOCD with the SAME70 XPlained board
@@ -85,36 +87,51 @@ Assuming OpenOCD is still running after the previously given command, open a sec
 To control the LED, enter the following four OpenOCD commands (omit the comment starting at '#'). These commands write 32-bit values in registers of the memory-mapped PIOC peripheral:
 
 ```
-mww 0x400e1200 0x100  # put PIOC pin 8 under control of the PIOC peripheral.
-mww 0x400e1210 0x100  # configure PIOC pin 8 as an output pin.
-mww 0x400e1234 0x100  # set PIOC pin 8 as 0 (turns LED on).
-mww 0x400e1230 0x100  # set PIOC pin 8 to 1 (turns LED off).
+# Put PIOC pin 8 under control of the PIOC peripheral.
+mww 0x400e1200 0x100
+
+# Configure PIOC pin 8 as an output pin.
+mww 0x400e1210 0x100
+
+# Set PIOC pin 8 as 0 (turns LED on).
+mww 0x400e1234 0x100
+
+# Set PIOC pin 8 to 1 (turns LED off).
+mww 0x400e1230 0x100
 ```
 
 You can repeat either of the last two lines to play with the LED.
 
 ## 1.6 Some useful OpenOCD commands
 
-The SAME70 can be programmed to boot either from its built-in ROM (which runs the SAM-BA monitor program on UART0) or from its
-Flash memory. If the device is in ROM boot mode, it will not run code that is uploaded to its Flash memory.
+You can halt the SAME70 core by executing the 'halt' command.
 
-To force the SAME70 to boot from Flash:
+You can reset the SAME70 core by executing the 'reset' command.
 
-```
-mww 0x400e0c04 0x5a00010b     # (set GPNVM bit #1)
-```
+The SAME70 can be programmed to boot either from its built-in ROM (which runs the SAM-BA monitor program on UART0) or from its Flash memory. If the device is in ROM boot mode, it will not run code that is uploaded to its Flash memory.
 
-To force the SAME70 to boot from ROM (SAM-BA mode):
+To force the SAME70 to boot from Flash on the next reset or powerup:
 
 ```
-mww 0x400e0c04 0x5a00010c     # (clear GPNVM bit #1)
+# Set GPNVM bit #1 to boot from Flash.
+mww 0x400e0c04 0x5a00010b
 ```
 
-## 1.7 Using GDB
+To force the SAME70 to boot from ROM (SAM-BA mode) on the next reset or powerup:
+
+```
+# Clear GPNVM bit #1 to boot from SAM-BA ROM.
+mww 0x400e0c04 0x5a00010c
+```
+
+## 1.7 Using OpenOCD to upload executable images
+
+## 1.8 Using OpenOCD for debugging with GDB
 
 (To be written)
 
-## 1.8 References
+
+## 1.9 References
 
 1. OpenOCD website: [http://openocd.org/](http://openocd.org/)
 2. OpenOCD documentation: [http://openocd.org/documentation/](http://openocd.org/documentation/)

@@ -20,8 +20,6 @@ but it's just the same old archive as when it used to be on Atmel's old website.
 
 http://ww1.microchip.com/downloads/en/DeviceDoc/asf-standalone-archive-3.36.2.65.zip
 
-
-
 ## 9.3 References
 
 1. Atmel ASF website: [http://asf.atmel.com/docs/latest/](http://asf.atmel.com/docs/latest/)
