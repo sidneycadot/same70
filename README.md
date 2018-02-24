@@ -5,6 +5,18 @@ This project aims for in-depth exploration of ARM Cortex-M microcontrollers.
 We will use an Atmel SAME70 (Cortex-M7) microcontroller development board for this:
 the SAME70 XPlained board as manufactured by Atmel.
 
+Important web pages
+-------------------
+
+Atmel was acquired by MicroChip in 2017. The old Atmel website is slowly but surely being
+transferred to the Microchip website.
+
+The SAM E70 Xplained Evaluation Kit can now be found here:
+
+(SAM E70 XPlained Evaluation Kit information)[http://www.microchip.com/DevelopmentTools/ProductDetails.aspx?PartNO=ATSAME70-XPLD]
+
+Download the (SAME70-XPLD Xplained User Guide)[http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-44050-Cortex-M7-Microcontroller-SAM-E70-XPLD-Xplained_User-guide.pdf]. Most importantly, this manual contains header pinouts and schematics of the SAME70 PCB.
+
 Table of Contents
 -----------------
 
